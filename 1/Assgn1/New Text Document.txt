@@ -1,0 +1,84 @@
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+
+### spliting datasets
+def splitting_data(df_insurance):
+    training_data = df_insurance.sample(frac=0.8,random_state=5)
+    testing_data = df_insurance.drop(training_data.index)
+    return training_data,testing_data
+
+
+### Encoding categorical dataset
+def encoding(df_insurance):
+    df_numerical = df_insurance[['id', 'Age', 'Driving_License', 'Region_Code', 'Previously_Insured', 'Annual_Premium', 'Policy_Sales_Channel', 'Vintage']]
+    df_categorical = df_insurance[['Gender', 'Vehicle_Age', 'Vehicle_Damage']]
+
+
+    gender_encoder = LabelEncoder()
+    gender_encoder.fit(df_categorical['Gender'])
+    gender_values = gender_encoder.transform(df_categorical['Gender'])
+
+
+    vehicle_dmg_encoder = LabelEncoder()
+    vehicle_dmg_encoder.fit(df_categorical['Vehicle_Damage'])
+    vehicle_dmg_values = vehicle_dmg_encoder.transform(df_categorical['Vehicle_Damage'])
+
+
+    vehicle_age_encoder = OneHotEncoder()
+    vehicle_age_reshaped = np.array(df_categorical['Vehicle_Age']).reshape(-1,1)
+    vehicle_age_values = vehicle_age_encoder.fit_transform(vehicle_age_reshaped)
+
+
+    gender = pd.DataFrame(gender_values, columns=['Gender'])
+
+    vehicle_age = pd.DataFrame(vehicle_age_values.toarray(), columns=['> 2 Years', '1-2 Year', '< 1 Year'])
+
+    vehicle_dmg = pd.DataFrame(vehicle_dmg_values, columns=['Vehicle_Damage'])
+
+    df_categorical_encoded = pd.concat([gender, vehicle_age, vehicle_dmg], axis=1)
+
+    df_new_insurance = pd.concat([df_numerical, df_categorical_encoded], axis=1)
+
+    df_new_insurance.to_csv(r'new1.csv',index=False)
+    #print(df_new_insurance)
+    return df_new_insurance
+
+def outliers(df_insurance, columns):
+    limit =  [0]*(len(columns))
+    print(columns)
+    for i in range(1,len(columns)):
+        limit[i] = df_insurance[columns[i]].mean() + (3 * df_insurance[columns[i]].std())
+        print(limit[i])
+
+
+
+
+if __name__ == "__main__":
+    #### reading data from CSV
+    df_insurance = pd.read_csv(r'Dataset_C.csv')
+
+    train_ds, test_ds = splitting_data(df_insurance)
+
+    df_target_train = train_ds[train_ds.columns[-1]]
+    df_feature_train = train_ds.drop([train_ds.columns[-1]],axis=1)
+    print(df_target_train)
+    df_target_test = test_ds[test_ds.columns[-1]]
+    df_feature_test = test_ds.drop([test_ds.columns[-1]],axis=1)
+
+
+    #df_noid = df_insurance.drop("id", axis =1)
+    #df_insurance = df_insurance.drop("id", axis =1)
+    #print(df_noid.describe())
+
+    #new_df_ds = encoding(df_feature_train)
+    #outliers(new_df_ds,new_df_ds.columns)
+    #print(new_df_ds)
+    # series = pd.isnull(df_insurance['id'])   #checking missing data
+    # print(df_insurance[series])
+    ###

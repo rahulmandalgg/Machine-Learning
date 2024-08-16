@@ -1,0 +1,7 @@
+Final Set of Features with first row:
+   Gender  Age  Driving_License  Region_Code  Previously_Insured  Vehicle_Age  \
+0       1   44                1           28                   0            2   
+
+   Vehicle_Damage  Annual_Premium  Policy_Sales_Channel  Vintage  Response  
+0               1           40454                    26      217         1  
+Final Accuracy is:0.6367226061204343
